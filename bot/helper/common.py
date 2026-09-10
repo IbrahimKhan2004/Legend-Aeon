@@ -412,7 +412,10 @@ class TaskConfig:
         else:
             chat = Config.LEECH_DUMP_CHAT
             main_chat = chat[0] if isinstance(chat, list) and chat else chat or ""
-            self.up_dest = self.up_dest or main_chat
+            if self.message.chat.type.name == "PRIVATE":
+                self.up_dest = self.up_dest or self.user_id
+            else:
+                self.up_dest = self.up_dest or main_chat
             self.hybrid_leech = TgClient.IS_PREMIUM_USER and (
                 self.user_dict.get("HYBRID_LEECH")
                 or (Config.HYBRID_LEECH and "HYBRID_LEECH" not in self.user_dict)
@@ -503,13 +506,15 @@ class TaskConfig:
                                 "Bot is not admin in the destination chat!"
                             )
                         member = await chat.get_member(self.client.me.id)
-                        if (
-                            not member.privileges.can_manage_chat
-                            or not member.privileges.can_delete_messages
-                        ):
+                        if chat.type.name == "CHANNEL":
+                            if not member.privileges.can_post_messages:
+                                raise ValueError(
+                                    "Bot doesn't have permission to post messages in destination channel!"
+                                )
+                        elif not member.privileges.can_delete_messages:
                             if not self.user_transmission:
                                 raise ValueError(
-                                    "You don't have enough privileges in this chat! Enable manage chat and delete messages for this bot!"
+                                    "You don't have enough privileges in this chat! Enable delete messages for this bot!"
                                 )
                             self.hybrid_leech = False
                     else:
