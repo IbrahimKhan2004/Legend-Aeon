@@ -584,7 +584,8 @@ class TelegramUploader:
 
         # If upload was in a group/channel, copy file to user PM
         if self._sent_msg.chat.id != self._user_id:
-            await _copy(self._user_id)
+            with contextlib.suppress(Exception):
+                await _copy(self._user_id)
 
         # Custom user dump
         if self._user_dump:
