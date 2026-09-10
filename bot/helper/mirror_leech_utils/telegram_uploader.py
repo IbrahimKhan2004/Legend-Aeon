@@ -464,14 +464,11 @@ class TelegramUploader:
                 }
 
                 if thumb:
-                    for cover_arg in ("video_cover", "cover"):
-                        try:
-                            test_kwargs = {**video_kwargs, cover_arg: thumb}
-                            self._sent_msg = await self._sent_msg.reply_video(**test_kwargs)
-                            break
-                        except TypeError:
-                            continue
-                    else:
+                    try:
+                        self._sent_msg = await self._sent_msg.reply_video(
+                            **video_kwargs, cover=thumb
+                        )
+                    except TypeError:
                         self._sent_msg = await self._sent_msg.reply_video(**video_kwargs)
                 else:
                     self._sent_msg = await self._sent_msg.reply_video(**video_kwargs)
