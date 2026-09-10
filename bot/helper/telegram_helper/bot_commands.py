@@ -14,6 +14,7 @@ class BotCommands:
     JdLeechCommand = [f"jdleech{i}", f"jl{i}"]
     NzbLeechCommand = [f"nzbleech{i}", f"nl{i}"]
     YtdlLeechCommand = [f"ytdlleech{i}", f"yl{i}"]
+    ThumbCommand = [f"thumb{i}", f"t{i}"]
     CloneCommand = f"clone{i}"
     MediaInfoCommand = f"mediainfo{i}"
     CountCommand = f"count{i}"
