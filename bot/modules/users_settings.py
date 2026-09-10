@@ -465,11 +465,9 @@ async def save_thumb(_, message):
         await send_message(message, "Reply to any photo to save as your Thumbnail.")
         return
 
-    target_msg = reply_to if reply_to else message
+    target_msg = reply_to or message
 
-    if target_msg.photo:
-        msg_to_process = target_msg
-    elif (
+    if target_msg.photo or (
         target_msg.document
         and target_msg.document.mime_type
         and target_msg.document.mime_type.startswith("image/")
