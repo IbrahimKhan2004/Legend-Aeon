@@ -26,6 +26,7 @@ COMMANDS = {
     "NzbLeechCommand": "- Leech NZB files",
     "YtdlCommand": "- Mirror link using yt-dlp",
     "YtdlLeechCommand": "- Leech link using yt-dlp",
+    "ThumbCommand": "- Save custom thumbnail",
     "CloneCommand": "- Copy file/folder to Drive",
     "MediaInfoCommand": "- Get media information",
     "SoxCommand": "- Get audio spectrum",
