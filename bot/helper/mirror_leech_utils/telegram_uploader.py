@@ -571,7 +571,6 @@ class TelegramUploader:
                         "chat_id": target_chat_id,
                         "from_chat_id": self._sent_msg.chat.id,
                         "message_id": self._sent_msg.id,
-                        "video_cover": None,
                     }
                     if thread_id:
                         kwargs["message_thread_id"] = thread_id
