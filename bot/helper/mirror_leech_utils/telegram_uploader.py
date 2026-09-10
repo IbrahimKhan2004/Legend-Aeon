@@ -51,6 +51,24 @@ from bot.helper.telegram_helper.message_utils import delete_message
 LOGGER = getLogger(__name__)
 
 
+def parse_target(target):
+    thread_id = None
+    if isinstance(target, str):
+        target = target.strip()
+        if "|" in target:
+            target, thread_id = target.split("|", 1)
+            thread_id = int(thread_id.strip()) if thread_id.strip().isdigit() else None
+        if target.lstrip("-").isdigit():
+            target = int(target)
+        elif not target.startswith("@"):
+            target = f"@{target}"
+    elif isinstance(target, int):
+        pass
+    else:
+        return None, None
+    return target, thread_id
+
+
 class TelegramUploader:
     def __init__(self, listener, path):
         self._last_uploaded = 0
@@ -543,36 +561,49 @@ class TelegramUploader:
         await sleep(0.5)
 
         async def _copy(target, retries=2):
+            target_chat_id, thread_id = parse_target(target)
+            if not target_chat_id:
+                return
+
             for attempt in range(retries):
                 try:
-                    msg = await TgClient.bot.get_messages(
-                        self._sent_msg.chat.id,
-                        self._sent_msg.id,
-                    )
-                    await msg.copy(target)
+                    kwargs = {
+                        "chat_id": target_chat_id,
+                        "from_chat_id": self._sent_msg.chat.id,
+                        "message_id": self._sent_msg.id,
+                    }
+                    if thread_id:
+                        kwargs["message_thread_id"] = thread_id
+                    await TgClient.bot.copy_message(**kwargs)
                     return
                 except Exception as e:
-                    LOGGER.error(f"Attempt {attempt + 1} failed: {e} {msg.id}")
+                    LOGGER.error(f"Attempt {attempt + 1} failed to copy to {target_chat_id}: {e}")
                     if attempt < retries - 1:
                         await sleep(0.5)
-            LOGGER.error(f"Failed to copy message after {retries} attempts")
+            LOGGER.error(f"Failed to copy message after {retries} attempts to {target_chat_id}")
 
+        # If upload was in a group/channel, copy file to user PM
         if self._sent_msg.chat.id != self._user_id:
             await _copy(self._user_id)
 
+        # Custom user dump
         if self._user_dump:
             with contextlib.suppress(Exception):
-                await _copy(int(self._user_dump))
+                await _copy(self._user_dump)
 
+        # Configured LEECH_DUMP_CHAT
         dump_chats = Config.LEECH_DUMP_CHAT
         if isinstance(dump_chats, list):
             for i in dump_chats:
-                if str(i) != str(self._sent_msg.chat.id):
+                parsed_id, _ = parse_target(i)
+                if parsed_id and str(parsed_id) != str(self._sent_msg.chat.id):
                     with contextlib.suppress(Exception):
                         await _copy(i)
-        elif dump_chats and str(dump_chats) != str(self._sent_msg.chat.id):
-            with contextlib.suppress(Exception):
-                await _copy(dump_chats)
+        elif dump_chats:
+            parsed_id, _ = parse_target(dump_chats)
+            if parsed_id and str(parsed_id) != str(self._sent_msg.chat.id):
+                with contextlib.suppress(Exception):
+                    await _copy(dump_chats)
 
     @property
     def speed(self):
