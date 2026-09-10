@@ -55,6 +55,7 @@ class Config:
     TELEGRAM_API: int = 0
     TELEGRAM_HASH: str = ""
     TG_PROXY: ClassVar[dict[str, str]] = {}
+    TG_UPLOAD_WORKERS: int = 16
     THUMBNAIL_LAYOUT: str = ""
     TORRENT_TIMEOUT: int = 0
     UPLOAD_PATHS: ClassVar[dict[str, str]] = {}

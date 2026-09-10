@@ -1,11 +1,12 @@
 from asyncio import Lock
 
-from pyrogram import Client, enums
+from pyrogram import enums
 from pyrogram.types import LinkPreviewOptions
 
 from bot import LOGGER
 
 from .config_manager import Config
+from .telegram_client import TelegramClient
 
 
 class TgClient:
@@ -21,7 +22,7 @@ class TgClient:
     async def start_bot(cls):
         LOGGER.info("Creating client from BOT_TOKEN")
         cls.ID = Config.BOT_TOKEN.split(":", 1)[0]
-        cls.bot = Client(
+        cls.bot = TelegramClient(
             cls.ID,
             Config.TELEGRAM_API,
             Config.TELEGRAM_HASH,
@@ -30,6 +31,7 @@ class TgClient:
             workdir="/app",
             parse_mode=enums.ParseMode.HTML,
             max_concurrent_transmissions=100,
+            upload_workers=Config.TG_UPLOAD_WORKERS,
             max_message_cache_size=15000,
             max_topic_cache_size=15000,
             sleep_threshold=0,
@@ -43,7 +45,7 @@ class TgClient:
         if Config.USER_SESSION_STRING:
             LOGGER.info("Creating client from USER_SESSION_STRING")
             try:
-                cls.user = Client(
+                cls.user = TelegramClient(
                     "user",
                     Config.TELEGRAM_API,
                     Config.TELEGRAM_HASH,
@@ -53,6 +55,7 @@ class TgClient:
                     parse_mode=enums.ParseMode.HTML,
                     no_updates=True,
                     max_concurrent_transmissions=100,
+                    upload_workers=Config.TG_UPLOAD_WORKERS,
                     max_message_cache_size=15000,
                     max_topic_cache_size=15000,
                     link_preview_options=LinkPreviewOptions(is_disabled=True),

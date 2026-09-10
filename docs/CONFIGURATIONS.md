@@ -12,6 +12,7 @@
 | Variable                  | Type           | Description |
 |---------------------------|----------------|-------------|
 | `TG_PROXY`                | `dict`         | Proxy settings as dict. Example: `{"scheme": "socks5", "hostname": "11.22.33.44", "port": 1234, "username": "user", "password": "pass"}`. Username/password optional. |
+| `TG_UPLOAD_WORKERS`       | `int`          | Parallel 512 KiB parts per Telegram file upload. Default: `16`; lower it if Telegram or network errors occur. |
 | `USER_SESSION_STRING`     | `str`          | Use to access Telegram premium features. Generate using `python3 generate_string_session.py`. **Note:** Use in supergroup only. |
 | `DATABASE_URL`            | `str`          | MongoDB connection string. See [Create Database](https://github.com/anasty17/test?tab=readme-ov-file#create-database). Stores bot/user settings, RSS feeds, and task history. |
 | `CMD_SUFFIX`              | `str` \| `int` | Suffix to add at the end of all commands. |
