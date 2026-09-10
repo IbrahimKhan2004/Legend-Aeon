@@ -464,11 +464,14 @@ class TelegramUploader:
                 }
 
                 if thumb:
-                    try:
-                        self._sent_msg = await self._sent_msg.reply_video(
-                            **video_kwargs, cover=thumb
-                        )
-                    except TypeError:
+                    for cover_arg in ("video_cover", "cover"):
+                        try:
+                            test_kwargs = {**video_kwargs, cover_arg: thumb}
+                            self._sent_msg = await self._sent_msg.reply_video(**test_kwargs)
+                            break
+                        except TypeError:
+                            continue
+                    else:
                         self._sent_msg = await self._sent_msg.reply_video(**video_kwargs)
                 else:
                     self._sent_msg = await self._sent_msg.reply_video(**video_kwargs)
@@ -568,6 +571,7 @@ class TelegramUploader:
                         "chat_id": target_chat_id,
                         "from_chat_id": self._sent_msg.chat.id,
                         "message_id": self._sent_msg.id,
+                        "video_cover": None,
                     }
                     if thread_id:
                         kwargs["message_thread_id"] = thread_id
