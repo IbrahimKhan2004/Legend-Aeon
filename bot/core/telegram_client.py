@@ -99,6 +99,7 @@ class TelegramClient(Client):
                         callback = functools.partial(
                             progress,
                             min(file_part * part_size, file_size),
+                            file_size,
                             *progress_args,
                         )
                         if inspect.iscoroutinefunction(progress):
