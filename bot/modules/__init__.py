@@ -36,6 +36,7 @@ from .status import status_pages, task_status
 from .users_settings import (
     edit_user_settings,
     get_users_settings,
+    save_thumb,
     send_user_settings,
 )
 from .ytdlp import ytdl, ytdl_leech
@@ -83,6 +84,7 @@ __all__ = [
     "restart_notification",
     "rss_listener",
     "run_shell",
+    "save_thumb",
     "select",
     "select_type",
     "send_bot_settings",
