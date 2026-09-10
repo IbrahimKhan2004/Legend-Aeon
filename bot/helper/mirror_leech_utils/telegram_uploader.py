@@ -145,7 +145,7 @@ class TelegramUploader:
                         message_thread_id=self._listener.chat_thread_id,
                         disable_notification=True,
                     )
-                    self._is_private = self._sent_msg.chat.type.name == "PRIVATE"
+                self._is_private = self._sent_msg.chat.type.name == "PRIVATE"
                 self.log_msg = self._sent_msg
             except Exception as e:
                 await self._listener.on_upload_error(str(e))
