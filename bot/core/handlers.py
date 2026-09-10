@@ -170,6 +170,11 @@ def add_handlers():
             BotCommands.UserSetCommand,
             CustomFilters.authorized,
         ),
+        "save_thumb": (
+            save_thumb,
+            BotCommands.ThumbCommand,
+            CustomFilters.authorized,
+        ),
         "ytdl": (
             ytdl,
             BotCommands.YtdlCommand,
