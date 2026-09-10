@@ -1,28 +1,18 @@
-from base64 import b64decode, b64encode
 from functools import lru_cache
 from hashlib import sha256
-from http.cookiejar import MozillaCookieJar
-from json import loads
 from os import path as ospath
-from re import findall, match, search, sub
-from time import sleep, time
-from urllib.parse import parse_qs, quote, urlparse
-from uuid import uuid4
+from re import search, sub
+from time import time
+from urllib.parse import urlparse
 
-from cloudscraper import create_scraper
-from curl_cffi import Session as CurlSession
-from lxml.etree import HTML
-from requests import Session, get, post
+from requests import Session, get
 
 from bot.core.config_manager import Config
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 from bot.helper.ext_utils.help_messages import PASSWORD_ERROR_MESSAGE
 from bot.helper.ext_utils.links_utils import is_share_link
-from bot.helper.ext_utils.status_utils import speed_string_to_bytes
 
-user_agent = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
-)
+user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
 
 debrid_link_supported_sites = [
     "1fichier.com",
@@ -154,7 +144,7 @@ def direct_link_generator(link):
     domain = urlparse(link).hostname
     if not domain:
         raise DirectDownloadLinkException("ERROR: Invalid URL")
-    elif is_url_shortener(domain):
+    if is_url_shortener(domain):
         resolved = bypass_shortener(link)
         try:
             return direct_link_generator(resolved)
@@ -362,7 +352,9 @@ def direct_link_generator(link):
     ):
         raise DirectDownloadLinkException(f"ERROR: R.I.P {domain}")
     else:
-        raise DirectDownloadLinkException(f"No Direct link function found for {link}")
+        raise DirectDownloadLinkException(
+            f"No Direct link function found for {link}"
+        )
 
 
 @lru_cache(1)
@@ -440,7 +432,9 @@ def gofile(url):
         try:
             _json = session.get(_url, headers=headers).json()
         except Exception as e:
-            raise DirectDownloadLinkException(f"ERROR: {e.__class__.__name__}") from e
+            raise DirectDownloadLinkException(
+                f"ERROR: {e.__class__.__name__}"
+            ) from e
         if _json["status"] in "error-passwordRequired":
             raise DirectDownloadLinkException(
                 f"ERROR:\n{PASSWORD_ERROR_MESSAGE.format(url)}"
@@ -467,7 +461,7 @@ def gofile(url):
             if content["type"] == "folder":
                 if not content["public"]:
                     continue
-                base = folderPath if folderPath else details["title"]
+                base = folderPath or details["title"]
                 newFolderPath = ospath.join(base, content["name"])
                 __fetch_links(session, content["id"], newFolderPath)
             else:
@@ -478,7 +472,9 @@ def gofile(url):
         try:
             token = __get_token(session)
         except Exception as e:
-            raise DirectDownloadLinkException(f"ERROR: {e.__class__.__name__}") from e
+            raise DirectDownloadLinkException(
+                f"ERROR: {e.__class__.__name__}"
+            ) from e
         details["header"] = f"Cookie: accountToken={token}"
         try:
             __fetch_links(session, _id)

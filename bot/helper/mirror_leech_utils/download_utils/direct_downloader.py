@@ -22,7 +22,9 @@ async def add_direct_download(listener, path):
         contents = getattr(details, "contents", None)
         total_size = getattr(details, "total_size", 0)
         title = getattr(details, "title", None)
-        header = getattr(details, "headers", None) or getattr(details, "header", None)
+        header = getattr(details, "headers", None) or getattr(
+            details, "header", None
+        )
 
     if not contents:
         await listener.on_download_error("There is nothing to download!")

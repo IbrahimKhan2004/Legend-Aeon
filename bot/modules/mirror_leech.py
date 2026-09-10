@@ -4,6 +4,7 @@ from base64 import b64encode
 from re import match as re_match
 
 from aiofiles.os import path as aiopath
+
 try:
     from truelink import TrueLinkResolver
     from truelink.exceptions import TrueLinkException
@@ -437,7 +438,8 @@ class Mirror(TaskListener):
                                         self.link = result
                                     if getattr(result, "headers", None):
                                         headers = [
-                                            f"{k}: {v}" for k, v in result.headers.items()
+                                            f"{k}: {v}"
+                                            for k, v in result.headers.items()
                                         ]
                         except TrueLinkException as true_err:
                             x = await send_message(self.message, true_err)
@@ -445,7 +447,9 @@ class Mirror(TaskListener):
                             await delete_links(self.message)
                             return await auto_delete_message(x, time=300)
                         except Exception as res_err:
-                            LOGGER.error(f"Unexpected exception in resolver: {res_err}")
+                            LOGGER.error(
+                                f"Unexpected exception in resolver: {res_err}"
+                            )
                             x = await send_message(
                                 self.message, "An unexpected error occurred."
                             )
@@ -454,9 +458,7 @@ class Mirror(TaskListener):
                             return await auto_delete_message(x, time=300)
                     else:
                         LOGGER.error(f"Unexpected exception generating link: {e}")
-                        x = await send_message(
-                            self.message, f"ERROR: {e}"
-                        )
+                        x = await send_message(self.message, f"ERROR: {e}")
                         await self.remove_from_same_dir()
                         await delete_links(self.message)
                         return await auto_delete_message(x, time=300)

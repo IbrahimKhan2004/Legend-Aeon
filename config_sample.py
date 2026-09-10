@@ -84,9 +84,7 @@ USENET_SERVERS = [  # List of Usenet server configurations
 ]
 
 # Update
-UPSTREAM_REPO = (
-    "https://github.com/L3G3N7/Aeon"  # Upstream repository for updates
-)
+UPSTREAM_REPO = "https://github.com/L3G3N7/Aeon"  # Upstream repository for updates
 UPSTREAM_BRANCH = "main"  # Default branch for updates
 
 # Leech
