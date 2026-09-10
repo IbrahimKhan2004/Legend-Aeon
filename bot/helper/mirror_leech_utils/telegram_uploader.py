@@ -503,7 +503,7 @@ class TelegramUploader:
                     progress=self._upload_progress,
                 )
 
-            await self._copy_message()
+            await self._copy_message(thumb)
 
             if (
                 not self._listener.is_cancelled
@@ -557,7 +557,7 @@ class TelegramUploader:
                 return await self._upload_file(cap_mono, file, o_path, True)
             raise err
 
-    async def _copy_message(self):
+    async def _copy_message(self, thumb=None):
         await sleep(0.5)
 
         async def _copy(target, retries=2):
@@ -567,6 +567,32 @@ class TelegramUploader:
 
             for attempt in range(retries):
                 try:
+                    if self._sent_msg.video and thumb and await aiopath.exists(thumb):
+                        for cover_arg in ("video_cover", "cover"):
+                            try:
+                                v_kwargs = {
+                                    "chat_id": target_chat_id,
+                                    "video": self._sent_msg.video.file_id,
+                                    "caption": self._sent_msg.caption,
+                                    "caption_entities": self._sent_msg.caption_entities,
+                                    "duration": self._sent_msg.video.duration,
+                                    "width": self._sent_msg.video.width,
+                                    "height": self._sent_msg.video.height,
+                                    "thumb": thumb,
+                                    "supports_streaming": True,
+                                    "disable_notification": True,
+                                    cover_arg: thumb,
+                                }
+                                if thread_id:
+                                    v_kwargs["message_thread_id"] = thread_id
+                                await TgClient.bot.send_video(**v_kwargs)
+                                return
+                            except TypeError:
+                                continue
+                            except Exception as e:
+                                LOGGER.error(f"Attempt {attempt + 1} failed send_video to {target_chat_id}: {e}")
+                                break
+
                     kwargs = {
                         "chat_id": target_chat_id,
                         "from_chat_id": self._sent_msg.chat.id,
