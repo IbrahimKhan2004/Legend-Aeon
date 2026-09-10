@@ -426,18 +426,27 @@ class TelegramUploader:
                     return None
                 if thumb == "none":
                     thumb = None
-                self._sent_msg = await self._sent_msg.reply_video(
-                    video=self._up_path,
-                    quote=True,
-                    caption=cap_mono,
-                    duration=duration,
-                    width=width,
-                    height=height,
-                    thumb=thumb,
-                    supports_streaming=True,
-                    disable_notification=True,
-                    progress=self._upload_progress,
-                )
+
+                video_kwargs = {
+                    "video": self._up_path,
+                    "quote": True,
+                    "caption": cap_mono,
+                    "duration": duration,
+                    "width": width,
+                    "height": height,
+                    "thumb": thumb,
+                    "supports_streaming": True,
+                    "disable_notification": True,
+                    "progress": self._upload_progress,
+                }
+                if thumb:
+                    video_kwargs["cover"] = thumb
+
+                try:
+                    self._sent_msg = await self._sent_msg.reply_video(**video_kwargs)
+                except TypeError:
+                    video_kwargs.pop("cover", None)
+                    self._sent_msg = await self._sent_msg.reply_video(**video_kwargs)
             elif is_audio:
                 key = "audios"
                 duration, artist, title = await get_media_info(self._up_path)
