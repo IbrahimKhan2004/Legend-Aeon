@@ -457,6 +457,35 @@ async def add_file(_, message, ftype):
 
 
 @new_task
+async def save_thumb(_, message):
+    user_id = message.from_user.id
+    reply_to = message.reply_to_message
+
+    if not reply_to and not (message.photo or message.document):
+        await send_message(message, "Reply to any photo to save as your Thumbnail.")
+        return
+
+    target_msg = reply_to if reply_to else message
+
+    if target_msg.photo:
+        msg_to_process = target_msg
+    elif (
+        target_msg.document
+        and target_msg.document.mime_type
+        and target_msg.document.mime_type.startswith("image/")
+    ):
+        msg_to_process = target_msg
+    else:
+        await send_message(message, "Invalid media.")
+        return
+
+    des_dir = await create_thumb(msg_to_process, user_id)
+    update_user_ldata(user_id, "THUMBNAIL", des_dir)
+    await database.update_user_doc(user_id, "THUMBNAIL", des_dir)
+    await send_message(message, "Thumbnail Saved ✅")
+
+
+@new_task
 async def add_one(_, message, option):
     user_id = message.from_user.id
     handler_dict[user_id] = False
