@@ -11,6 +11,7 @@ qbleech - or /ql Leech using qBittorrent
 jdleech - or /jl Leech using JDownloader
 nzbleech - or /nl Leech using Sabnzbd
 ytdlleech - or /yl Leech yt-dlp links
+thumb - or /t Save custom thumbnail
 clone - Copy file/folder to Drive
 count - Count file/folder from GDrive
 settings - User settings
