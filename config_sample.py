@@ -9,6 +9,7 @@ DATABASE_URL = ""
 
 # OPTIONAL CONFIG
 TG_PROXY = {}  # Example: {"scheme": "socks5", "hostname": "11.22.33.44", "port": 1234, "username": "user", "password": "pass"}
+TG_UPLOAD_WORKERS = 16  # Parallel 512 KiB parts per Telegram file upload; reduce if Telegram/network errors occur
 USER_SESSION_STRING = ""
 CMD_SUFFIX = ""  # Suffix to add to all bot commands
 AUTHORIZED_CHATS = ""  # Space separated chat_id/user_id to authorize
