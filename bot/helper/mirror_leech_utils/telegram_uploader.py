@@ -560,25 +560,9 @@ class TelegramUploader:
     async def _copy_message(self):
         await sleep(0.5)
 
-        copied_targets = set()
-
-        def _is_primary_target(parsed_id, thread_id):
-            if isinstance(parsed_id, str) and parsed_id.startswith("@"):
-                primary_username = getattr(self._sent_msg.chat, "username", None)
-                if primary_username and parsed_id[1:].lower() == primary_username.lower():
-                    return True
-            return (
-                str(parsed_id) == str(self._sent_msg.chat.id)
-                and thread_id == getattr(self._sent_msg, "message_thread_id", None)
-            )
-
         async def _copy(target, retries=2):
             target_chat_id, thread_id = parse_target(target)
-            if not target_chat_id or _is_primary_target(target_chat_id, thread_id):
-                return
-
-            target_key = (str(target_chat_id).lower(), thread_id)
-            if target_key in copied_targets:
+            if not target_chat_id:
                 return
 
             for attempt in range(retries):
@@ -591,7 +575,6 @@ class TelegramUploader:
                     if thread_id:
                         kwargs["message_thread_id"] = thread_id
                     await TgClient.bot.copy_message(**kwargs)
-                    copied_targets.add(target_key)
                     return
                 except Exception as e:
                     LOGGER.error(f"Attempt {attempt + 1} failed to copy to {target_chat_id}: {e}")
@@ -609,14 +592,23 @@ class TelegramUploader:
                 await _copy(self._user_dump)
 
         # Configured LEECH_DUMP_CHAT
+        def _is_primary_target(parsed_id):
+            if isinstance(parsed_id, str) and parsed_id.startswith("@"):
+                return parsed_id[1:] == getattr(self._sent_msg.chat, "username", None)
+            return str(parsed_id) == str(self._sent_msg.chat.id)
+
         dump_chats = Config.LEECH_DUMP_CHAT
         if isinstance(dump_chats, list):
             for i in dump_chats:
-                with contextlib.suppress(Exception):
-                    await _copy(i)
+                parsed_id, _ = parse_target(i)
+                if parsed_id and not _is_primary_target(parsed_id):
+                    with contextlib.suppress(Exception):
+                        await _copy(i)
         elif dump_chats:
-            with contextlib.suppress(Exception):
-                await _copy(dump_chats)
+            parsed_id, _ = parse_target(dump_chats)
+            if parsed_id and not _is_primary_target(parsed_id):
+                with contextlib.suppress(Exception):
+                    await _copy(dump_chats)
 
     @property
     def speed(self):
