@@ -547,20 +547,22 @@ class TelegramUploader:
                         await sleep(0.5)
             LOGGER.error(f"Failed to copy message after {retries} attempts")
 
-        # TODO if self.dm_mode:
         if self._sent_msg.chat.id != self._user_id:
             await _copy(self._user_id)
 
         if self._user_dump:
             with contextlib.suppress(Exception):
                 await _copy(int(self._user_dump))
-        if (
-            isinstance(Config.LEECH_DUMP_CHAT, list)
-            and len(Config.LEECH_DUMP_CHAT) > 1
-        ):
-            for i in Config.LEECH_DUMP_CHAT[1:]:
-                with contextlib.suppress(Exception):
-                    await _copy(i)
+
+        dump_chats = Config.LEECH_DUMP_CHAT
+        if isinstance(dump_chats, list):
+            for i in dump_chats:
+                if str(i) != str(self._sent_msg.chat.id):
+                    with contextlib.suppress(Exception):
+                        await _copy(i)
+        elif dump_chats and str(dump_chats) != str(self._sent_msg.chat.id):
+            with contextlib.suppress(Exception):
+                await _copy(dump_chats)
 
     @property
     def speed(self):
