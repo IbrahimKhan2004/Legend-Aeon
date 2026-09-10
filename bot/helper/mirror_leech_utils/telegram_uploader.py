@@ -107,7 +107,10 @@ class TelegramUploader:
             self._thumb = None
 
     async def _msg_to_reply(self):
-        if self._listener.up_dest:
+        if (
+            self._listener.up_dest
+            and str(self._listener.up_dest) != str(self._listener.message.chat.id)
+        ):
             msg = self._listener.message.text.lstrip("/")
             try:
                 if self._user_session:
@@ -140,8 +143,10 @@ class TelegramUploader:
                     text="Deleted Cmd Message! Don't delete the cmd message again!",
                     disable_notification=True,
                 )
+            self._is_private = self._sent_msg.chat.type.name == "PRIVATE"
         else:
             self._sent_msg = self._listener.message
+            self._is_private = self._sent_msg.chat.type.name == "PRIVATE"
         return True
 
     async def _prepare_file(self, file_, dirpath):
